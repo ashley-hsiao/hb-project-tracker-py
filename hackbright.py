@@ -56,12 +56,27 @@ def get_project_by_title(title):
 
 def get_grade_by_github_title(github, title):
     """Print grade student received for a project."""
-    pass
+    QUERY = """
+        SELECT grade
+        FROM grades
+        WHERE student_github = :place_holder_github AND project_title = :place_holder_title
+        """
+    db_cursor = db.session.execute(QUERY, {'place_holder_github' : github, 'place_holder_title': title})
+    row = db_cursor.fetchone()
+
+    print "Grade: %s" %(row[0])
 
 
 def assign_grade(github, title, grade):
     """Assign a student a grade on an assignment and print a confirmation."""
-    pass
+    QUERY = """
+        INSERT INTO Grades
+        VALUES (:github, :title, :grade)
+        """
+    db_cursor = db.session.execute(QUERY, {'github': github, 'title': title, 'grade': grade})
+    db.session.commit()
+
+    print "Your assignment, %s received the grade %s" % (title, grade)
 
 
 def handle_input():
@@ -90,6 +105,13 @@ def handle_input():
             title = args[0]
             get_project_by_title(title)
 
+        elif command == "grade":
+            github, title = args
+            get_grade_by_github_title(github, title)
+
+        elif command == "assign_grade":
+            github, title, grade = args
+            assign_grade(github, title, grade)
 
         else:
             if command != "quit":
